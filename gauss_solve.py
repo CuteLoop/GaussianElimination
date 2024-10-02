@@ -96,3 +96,18 @@ if __name__ == "__main__":
     L, U = lu(A, use_c=True)
     print(L)
     print(U)
+
+
+def plu(A, use_c):
+    return 0, 0, 0
+    
+
+
+A = [[2.0, 3.0, -1.0],
+    [4.0, 1.0, 2.0],s
+    [-2.0, 7.0, 2.0]];
+
+use_c = False;
+P, L, U = plu(A, use_c = use_c)
+use_c = True;
+P, L, U = plu(A, use_c = use_c)
