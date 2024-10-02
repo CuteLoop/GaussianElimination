@@ -68,6 +68,50 @@ void test_gauss_solve()
   print_matrix(N, A, FLAG_LOWER_PART);
 }
 
+/*
+void test_plu()
+{
+  printf("Entering function: %s\n", __func__);
+  
+  const double A0[N][N] = {
+    {2, 3, -1},
+    {4, 1, 2},
+    {-2, 7, 2}
+  };
+
+  const double P[N] = {1, 2, 3};
+
+  double A[N][N], b[N], x[N], y[N];
+
+  // Create copies of the matrices.
+  //   NOTE: the copies will get destroyed.
+
+  memcpy(A, A0, sizeof(A0));
+  memcpy(b, b0, sizeof(b0));  
+
+  plu(N, A, P);
+
+  memcpy(x, b, sizeof(b0));
+  matrix_times_vector(N, A0, x, y);
+
+  double eps = 1e-6, dist = norm_dist(N, b0, y);
+  assert( dist < eps);
+
+  // Print x 
+  puts("x:\n");
+  print_vector(N, x);
+
+  //  Print U 
+  puts("U:\n");
+  print_matrix(N, A, FLAG_UPPER_PART);
+  
+  // Print L 
+  puts("L:\n");
+  print_matrix(N, A, FLAG_LOWER_PART);
+}
+
+*/
+
 jmp_buf env;  // Buffer to store the state for setjmp/longjmp
 
 void test_gauss_solve_with_zero_pivot()
@@ -217,6 +261,7 @@ int main()
   sighandler_t old_handler = signal(SIGFPE, fpe_handler);
 
   test_gauss_solve();
+  //test_plu();
   test_lu_in_place();
   benchmark_test(5);
   benchmark_test_dynamic(5);

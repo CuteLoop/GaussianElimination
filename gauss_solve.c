@@ -66,3 +66,36 @@ void lu_in_place_reconstruct(int n, double A[n][n])
     }
   }
 }
+
+
+/*
+void plu(int n, double A[n][n], int P[n])
+// permutation l u 
+{
+  for(int i = 0; i < n; ++i) {
+    P[i] = i;
+  }
+  for(int k = 0; k < n; ++k) {
+    double max = 0;
+    int imax = k;
+    for(int i = k; i < n; ++i) {
+      if(max < A[i][k]) {
+  max = A[i][k];
+  imax = i;
+      }
+    }
+    SWAP(P[k], P[imax], int);
+    for(int j = 0; j < n; ++j) {
+      SWAP(A[k][j], A[imax][j], double);
+    }
+    for(int i = k; i < n; ++i) {
+      for(int j = 0; j < k; ++j) {
+  A[i][j] = 0;
+      }
+      for(int j = k+1; j < n; ++j) {
+  A[i][j] -= A[i][k] * A[k][j];
+      }
+    }
+  }
+}
+*/
