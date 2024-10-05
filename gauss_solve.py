@@ -52,12 +52,9 @@ def lu_c(A):
 
     # Extract L and U parts from A, fill with 0's and 1's
     return unpack(modified_array_2d)
-
-import ctypes
-
 def plu_c(A):
     """
-    Accepts a list of lists A (matrix) of floats and returns (P, L, U) - 
+    Accepts a list of lists A (matrix) of floats and returns (perm, L, U) - 
     the PLU-decomposition as a tuple.
     """
     # Load the shared library containing the PLU decomposition function
@@ -72,7 +69,7 @@ def plu_c(A):
     # Convert the flattened list to a ctypes array of double
     c_array_2d = (ctypes.c_double * len(flat_array_2d))(*flat_array_2d)
     
-    # Create an array for the permutation array
+    # Create an array for the permutation vector (not matrix)
     perm = (ctypes.c_int * n)()  # Initializes a zeroed permutation array
 
     # Define the argument types for the C function
@@ -91,13 +88,12 @@ def plu_c(A):
         for i in range(n)
     ]
     
-    # Convert the permutation array into a permutation matrix
-    P = create_permutation_matrix(list(perm), n)
-    
     # Extract L and U from the modified array
     L, U = unpack_plu(modified_array_2d)
     
-    return P, L, U
+    # Return the permutation vector, L, and U
+    return list(perm), L, U
+
 
 def create_permutation_matrix(perm, n):
     """
