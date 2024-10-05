@@ -8,7 +8,7 @@
 # 
 #----------------------------------------------------------------
 # A Python wrapper module around the C library libgauss.so
-from helpers2 import print_matrix
+#from helpers2 import print
 import ctypes
 
 gauss_library_path = './libgauss.so'
@@ -195,15 +195,15 @@ if __name__ == "__main__":
    # print(L)
    # print(U)
     print("Python:lu")
-    print_matrix(L)
-    print_matrix(U)
+    print(L)
+    print(U)
     # Must re-initialize A as it was destroyed
     A = get_A()
 
     L, U = lu(A, use_c=True)
     print("C:lu")
-    print_matrix(L)
-    print_matrix(U)
+    print(L)
+    print(U)
     
 
 
@@ -214,13 +214,13 @@ A = [[2.0, 3.0, -1.0],
 use_c = False;
 P, L, U = plu(A, use_c = use_c)
 print("Python:plu")
-print_matrix(P)
-print_matrix(L)
-print_matrix(U)
+print(P)
+print(L)
+print(U)
 
 use_c = True;
 P, L, U = plu(A, use_c = use_c)
 print("C:plu")
-print_matrix(P)
-print_matrix(L)
-print_matrix(U)
+print(P)
+print(L)
+print(U)
