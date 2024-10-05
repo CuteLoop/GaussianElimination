@@ -44,14 +44,16 @@ def lu_c(A):
     return unpack(modified_array_2d)
 
 
+
 def plu_c(A):
     """
     Accepts a list of lists A (matrix) of floats and returns (perm, L, U) - 
     the PLU-decomposition as a tuple.
     """
-    # Load the shared library containing the PLU decomposition function
+    # Load the shared library
     lib = ctypes.CDLL(gauss_library_path)
 
+   
     # Size of the matrix (assuming it's square)
     n = len(A)
     
@@ -85,6 +87,7 @@ def plu_c(A):
     
     # Return the permutation vector, L, and U
     return list(perm), L, U
+
 
 '''
 def create_permutation_matrix(perm, n):
