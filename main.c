@@ -109,8 +109,8 @@ void test_plu()
   puts("L:\n");
   print_matrix(N, A, FLAG_LOWER_PART);
 }
-
 */
+
 
 jmp_buf env;  // Buffer to store the state for setjmp/longjmp
 
@@ -259,6 +259,7 @@ int main()
   // Enable trapping for specific floating-point exceptions
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
   sighandler_t old_handler = signal(SIGFPE, fpe_handler);
+  printf("Old handler: %p\n", old_handler);
 
   test_gauss_solve();
   //test_plu();

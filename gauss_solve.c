@@ -8,6 +8,8 @@
 *
 *----------------------------------------------------------------*/
 #include "gauss_solve.h"
+#include <math.h>  // For fabs
+#include <stdio.h> // For printf
 
 void gauss_solve_in_place(const int n, double A[n][n], double b[n])
 {
@@ -68,34 +70,47 @@ void lu_in_place_reconstruct(int n, double A[n][n])
 }
 
 
-/*
-void plu(int n, double A[n][n], int P[n])
-// permutation l u 
-{
+
+
+void plu(int n, double A[n][n], int P[n]) {
+  // Initialize the permutation array
   for(int i = 0; i < n; ++i) {
     P[i] = i;
   }
+
+  // PLU Decomposition with Partial Pivoting
   for(int k = 0; k < n; ++k) {
+    // Find the pivot (maximum absolute value in the column)
     double max = 0;
     int imax = k;
     for(int i = k; i < n; ++i) {
-      if(max < A[i][k]) {
-  max = A[i][k];
-  imax = i;
+      if(fabs(A[i][k]) > max) {  // Fix: Use fabs to find the largest absolute value
+        max = fabs(A[i][k]);
+        imax = i;
       }
     }
+
+    // Swap rows in the permutation vector and in matrix A
     SWAP(P[k], P[imax], int);
     for(int j = 0; j < n; ++j) {
       SWAP(A[k][j], A[imax][j], double);
     }
-    for(int i = k; i < n; ++i) {
-      for(int j = 0; j < k; ++j) {
-  A[i][j] = 0;
-      }
-      for(int j = k+1; j < n; ++j) {
-  A[i][j] -= A[i][k] * A[k][j];
+
+    // Check for singularity (zero pivot)
+    if(fabs(A[k][k]) < 1e-10) {
+      printf("Matrix is singular.\n");
+      return;
+    }
+
+    // Perform the elimination below the pivot (for rows below the pivot)
+    for(int i = k + 1; i < n; ++i) {
+      // Compute the multiplier and store it in the lower triangular part of A (matrix L)
+      A[i][k] /= A[k][k];
+
+      // Update the remaining elements in the row
+      for(int j = k + 1; j < n; ++j) {
+        A[i][j] -= A[i][k] * A[k][j];
       }
     }
   }
 }
-*/

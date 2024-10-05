@@ -1,0 +1,32 @@
+CFLAGS=/std:c11           # MSVC equivalent to -std=c99
+CFLAGS+=/Zi               # Generates complete debugging information (similar to -g -ggdb3)
+CFLAGS+=/O2               # MSVC optimization level (closest to -O5)
+LDFLAGS=                  # MSVC links libraries differently, no need for -lm
+PYTHON=python             # Name of Python executable
+
+all: gauss_solve libgauss.dll
+
+OBJS = gauss_solve.obj main.obj helpers.obj
+gauss_solve.obj : gauss_solve.h
+helpers.obj: helpers.h
+
+gauss_solve : $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
+
+check: check_gauss_solve check_ctype_wrapper
+
+check_gauss_solve: gauss_solve
+	$(PYTHON) ./$<
+
+check_ctype_wrapper: gauss_solve.py libgauss.dll
+	$(PYTHON) ./$<
+
+LIB_SOURCES = gauss_solve.c
+libgauss.dll: $(LIB_SOURCES)
+	$(CC) $(CFLAGS) /LD $(LIB_SOURCES) -o $@  # /LD flag creates a DLL
+
+clean: FORCE
+	-del gauss_solve.exe *.obj
+	-del *.dll
+
+FORCE:
