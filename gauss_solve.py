@@ -68,10 +68,10 @@ def plu_c(A):
     c_array_2d = (ctypes.c_double * len(flat_array_2d))(*flat_array_2d)
 
     # Define the function signature
-    lib.plu_in_place.argtypes = (ctypes.c_int, ctypes.POINTER(ctypes.c_double))
+    lib.plu.argtypes = (ctypes.c_int, ctypes.POINTER(ctypes.c_double))
 
     # Modify the array in C (e.g., add 10 to each element)
-    lib.plu_in_place(n, c_array_2d)
+    lib.plu(n, c_array_2d)
 
     # Convert back to a 2D Python list of lists
     modified_array_2d = [
