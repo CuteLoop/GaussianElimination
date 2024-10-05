@@ -1,6 +1,6 @@
 import unittest
 import random
-from helpers import print_matrix, hilbert_matrix, random_matrix
+from helpers2 import print_matrix, hilbert_matrix, random_matrix
 from gauss_solve import lu, plu
 
 class TestLUDecomposition(unittest.TestCase):

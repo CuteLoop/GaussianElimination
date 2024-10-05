@@ -8,7 +8,7 @@
 # 
 #----------------------------------------------------------------
 # A Python wrapper module around the C library libgauss.so
-from helpers import print_matrix
+from helpers2 import print_matrix
 import ctypes
 
 gauss_library_path = './libgauss.so'
@@ -53,34 +53,80 @@ def lu_c(A):
     # Extract L and U parts from A, fill with 0's and 1's
     return unpack(modified_array_2d)
 
+import ctypes
+
 def plu_c(A):
-    """ Accepts a list of lists A of floats and
-    it returns (P, L, U) - the PLU-decomposition as a tuple.
     """
-    # Load the shared library
+    Accepts a list of lists A (matrix) of floats and returns (P, L, U) - 
+    the PLU-decomposition as a tuple.
+    """
+    # Load the shared library containing the PLU decomposition function
     lib = ctypes.CDLL(gauss_library_path)
 
-    # Create a 2D array in Python and flatten it
+    # Size of the matrix (assuming it's square)
     n = len(A)
+    
+    # Flatten the 2D Python list (row-major order)
     flat_array_2d = [item for row in A for item in row]
-
-    # Convert to a ctypes array
+    
+    # Convert the flattened list to a ctypes array of double
     c_array_2d = (ctypes.c_double * len(flat_array_2d))(*flat_array_2d)
+    
+    # Create an array for the permutation array
+    perm = (ctypes.c_int * n)()  # Initializes a zeroed permutation array
 
-    # Define the function signature
-    lib.plu.argtypes = (ctypes.c_int, ctypes.POINTER(ctypes.c_double))
-
-    # Modify the array in C (e.g., add 10 to each element)
-    lib.plu(n, c_array_2d)
-
-    # Convert back to a 2D Python list of lists
+    # Define the argument types for the C function
+    lib.plu.argtypes = (
+        ctypes.c_int,                         # size of the matrix
+        ctypes.POINTER(ctypes.c_double),      # matrix A (as a 1D array)
+        ctypes.POINTER(ctypes.c_int)          # permutation array (perm)
+    )
+    
+    # Call the C function (in-place modification of the matrix and perm)
+    lib.plu(n, c_array_2d, perm)
+    
+    # Convert the modified ctypes array back to a 2D Python list
     modified_array_2d = [
         [c_array_2d[i * n + j] for j in range(n)]
         for i in range(n)
     ]
+    
+    # Convert the permutation array into a permutation matrix
+    P = create_permutation_matrix(list(perm), n)
+    
+    # Extract L and U from the modified array
+    L, U = unpack_plu(modified_array_2d)
+    
+    return P, L, U
 
-    # Extract L and U parts from A, fill with 0's and 1's
-    return unpack(modified_array_2d)
+def create_permutation_matrix(perm, n):
+    """
+    Converts a permutation vector into a permutation matrix.
+    """
+    P = [[0.0 for _ in range(n)] for _ in range(n)]
+    for i in range(n):
+        P[i][perm[i]] = 1.0  # Permutation matrix has 1's in permuted positions
+    return P
+
+def unpack_plu(A):
+    """
+    Extracts the lower (L) and upper (U) triangular matrices from 
+    the modified matrix A after PLU decomposition.
+    """
+    n = len(A)
+    L = [[0.0 if i != j else 1.0 for j in range(n)] for i in range(n)]  # Identity for L
+    U = [[0.0 for _ in range(n)] for _ in range(n)]
+
+    # Populate L and U from the matrix A
+    for i in range(n):
+        for j in range(n):
+            if i > j:
+                L[i][j] = A[i][j]  # Lower triangular part
+            else:
+                U[i][j] = A[i][j]  # Upper triangular part
+
+    return L, U
+
 
 def lu_python(A):
     n = len(A)
