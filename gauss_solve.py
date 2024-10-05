@@ -1,14 +1,4 @@
-#----------------------------------------------------------------
-# File:     gauss_solve.py
-#----------------------------------------------------------------
-#
-# Author:   Marek Rychlik (rychlik@arizona.edu)
-# Date:     Thu Sep 26 10:38:32 2024
-# Copying:  (C) Marek Rychlik, 2020. All rights reserved.
-# 
-#----------------------------------------------------------------
-# A Python wrapper module around the C library libgauss.so
-#from helpers2 import print
+
 import ctypes
 
 gauss_library_path = './libgauss.so'
@@ -52,6 +42,8 @@ def lu_c(A):
 
     # Extract L and U parts from A, fill with 0's and 1's
     return unpack(modified_array_2d)
+
+
 def plu_c(A):
     """
     Accepts a list of lists A (matrix) of floats and returns (perm, L, U) - 
@@ -89,12 +81,12 @@ def plu_c(A):
     ]
     
     # Extract L and U from the modified array
-    L, U = unpack_plu(modified_array_2d)
+    L, U = unpack(modified_array_2d)
     
     # Return the permutation vector, L, and U
     return list(perm), L, U
 
-
+'''
 def create_permutation_matrix(perm, n):
     """
     Converts a permutation vector into a permutation matrix.
@@ -122,7 +114,7 @@ def unpack_plu(A):
                 U[i][j] = A[i][j]  # Upper triangular part
 
     return L, U
-
+'''
 
 def lu_python(A):
     n = len(A)
@@ -138,23 +130,39 @@ def lu_python(A):
     return unpack(A)
 
 
+
 def plu_python(A):
+    """
+    Perform PLU decomposition of matrix A using Python.
+    Returns the permutation vector, L, and U.
+    """
     n = len(A)
-    P = [[float(i == j) for j in range(n)] for i in range(n)]
+    perm = list(range(n))  # Initialize permutation vector
+
     for k in range(n):
+        # Find the pivot row
         pivot = k
         for i in range(k+1, n):
             if abs(A[i][k]) > abs(A[pivot][k]):
                 pivot = i
-        A[k], A[pivot] = A[pivot], A[k]
-        P[k], P[pivot] = P[pivot], P[k]
+
+        # Swap rows in A and update the permutation vector
+        if pivot != k:  # Ensure we only swap when needed
+            print(f"Swapping rows: {k} and {pivot}")
+
+            A[k], A[pivot] = A[pivot], A[k]
+            perm[k], perm[pivot] = perm[pivot], perm[k]
+
+        # Perform the decomposition
         for i in range(k+1, n):
-            A[i][k] /= A[k][k]
+            A[i][k] /= A[k][k]  # Compute the L value (modify A in place)
             for j in range(k+1, n):
+                print(f"Index values: i={i}, j={j}")
+
                 A[i][j] -= A[i][k] * A[k][j]
 
-    return P, *unpack(A)    
-
+    # Return permutation vector and the decomposed L and U matrices
+    return perm, *unpack(A)
 
 
 
@@ -178,6 +186,16 @@ def plu(A, use_c=False):
 
 if __name__ == "__main__":
 
+    def print_matrix(name, matrix):
+        print(f"{name}:")
+        for row in matrix:
+            print("  ", " ".join(f"{val:.4f}" for val in row))
+        print()
+
+    def print_vector(name, vector):
+        print(f"{name}: {vector}")
+        print()
+
     def get_A():
         """ Make a test matrix """
         A = [[2.0, 3.0, -1.0],
@@ -185,38 +203,48 @@ if __name__ == "__main__":
              [-2.0, 7.0, 2.0]]
         return A
 
+    def hilbert_matrix(n):
+        """ Returns the nxn Hilbert matrix. """
+        return [[1.0 / (i + j + 1) for j in range(n)] for i in range(n)]
+
+    # Test Python LU decomposition
+    A = get_A()
+    L, U = lu(A, use_c=False)
+    print_matrix("Python LU L matrix", L)
+    print_matrix("Python LU U matrix", U)
+
+    # Must re-initialize A as it was destroyed by the previous operation
     A = get_A()
 
-    L, U = lu(A, use_c = False)
-   # print(L)
-   # print(U)
-    print("Python:lu")
-    print(L)
-    print(U)
-    # Must re-initialize A as it was destroyed
-    A = get_A()
-
+    # Test C LU decomposition
     L, U = lu(A, use_c=True)
-    print("C:lu")
-    print(L)
-    print(U)
-    
+    print_matrix("C LU L matrix", L)
+    print_matrix("C LU U matrix", U)
 
+    # Test Python PLU decomposition
+    A = get_A()
+    P, L, U = plu(A, use_c=False)
+    print_vector("Python PLU Permutation vector", P)
+    print_matrix("Python PLU L matrix", L)
+    print_matrix("Python PLU U matrix", U)
 
-A = [[2.0, 3.0, -1.0],
-    [4.0, 1.0, 2.0],
-    [-2.0, 7.0, 2.0]];
+    # Test C PLU decomposition
+    A = get_A()  # Reset the matrix A
+    P, L, U = plu(A, use_c=True)
+    print_vector("C PLU Permutation vector", P)
+    print_matrix("C PLU L matrix", L)
+    print_matrix("C PLU U matrix", U)
 
-use_c = False;
-P, L, U = plu(A, use_c = use_c)
-print("Python:plu")
-print(P)
-print(L)
-print(U)
+    # Test Python PLU decomposition on a 20x20 Hilbert matrix
+    A = hilbert_matrix(20)
+    P, L, U = plu(A, use_c=False)
+    print_vector("Python PLU Permutation vector (20x20 Hilbert)", P)
+    print_matrix("Python PLU L matrix (20x20 Hilbert)", L)
+    print_matrix("Python PLU U matrix (20x20 Hilbert)", U)
 
-use_c = True;
-P, L, U = plu(A, use_c = use_c)
-print("C:plu")
-print(P)
-print(L)
-print(U)
+    # Test C PLU decomposition on a 20x20 Hilbert matrix
+    A = hilbert_matrix(20)  # Reset the Hilbert matrix
+    P, L, U = plu(A, use_c=True)
+    print_vector("C PLU Permutation vector (20x20 Hilbert)", P)
+    print_matrix("C PLU L matrix (20x20 Hilbert)", L)
+    print_matrix("C PLU U matrix (20x20 Hilbert)", U)
