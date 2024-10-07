@@ -151,7 +151,7 @@ def plu_python(A):
 
         # Swap rows in A and update the permutation vector
         if pivot != k:  # Ensure we only swap when needed
-            print(f"Swapping rows: {k} and {pivot}")
+            #print(f"Swapping rows: {k} and {pivot}")
 
             A[k], A[pivot] = A[pivot], A[k]
             perm[k], perm[pivot] = perm[pivot], perm[k]
@@ -160,7 +160,7 @@ def plu_python(A):
         for i in range(k+1, n):
             A[i][k] /= A[k][k]  # Compute the L value (modify A in place)
             for j in range(k+1, n):
-                print(f"Index values: i={i}, j={j}")
+                #print(f"Index values: i={i}, j={j}")
 
                 A[i][j] -= A[i][k] * A[k][j]
 
